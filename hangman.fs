@@ -22,36 +22,36 @@ VARIABLE tries 6 tries !
 \ --------------------------------------------------------------------------------
 \ UTILITY WORDS
 \ --------------------------------------------------------------------------------
-: hang
+: hang ( -- )
 	KEY DROP
 ;
 
-: is-upper ( c -- #t | #f )
+: is-upper ( c -- bool )
 	64 >
 	OVER 91 <
 	AND
 ;
 
-: is-lower ( c -- #t | #f )
+: is-lower ( c -- bool )
 	96 >
 	OVER 123 <
 	AND
 ;
 
-: is-char ( c -- #t | #f )
+: is-char ( c -- bool )
 	DUP is-upper
 	SWAP
 	is-lower
 	OR
 ;
 
-: is-num ( c -- #t | #f )
+: is-num ( c -- bool )
 	47 >
 	OVER 58 <
 	AND
 ;
 
-: is-space ( c -- #t | #f )
+: is-space ( c -- bool )
 	BL
 	=
 ;
@@ -77,7 +77,7 @@ VARIABLE tries 6 tries !
 	PAD DUP ROT ACCEPT
 ;
 
-: find-spaces
+: find-spaces ( -- )
 	size @ 0 DO
 		secretPhrase I + C@ BL =
 		IF
@@ -90,11 +90,11 @@ VARIABLE tries 6 tries !
 \ --------------------------------------------------------------------------------
 \ PHRASE WORDS
 \ --------------------------------------------------------------------------------
-: print-phrase
+: print-phrase ( -- )
 	secretPhrase size @ TYPE
 ;
 
-: print-progress
+: print-progress ( -- )
 	CR ." Phrase: "
 	size @ 0 DO
 		progress I + C@ 1 =
@@ -107,14 +107,14 @@ VARIABLE tries 6 tries !
 	LOOP
 ;
 
-: phrase-guessed? ( -- #t | #f )
+: phrase-guessed? ( -- bool )
 	1
 	size @ 0 DO
 		progress I + C@ AND
 	LOOP
 ;
 
-: valid-phrase? ( c-addr n -- #t | #f )
+: valid-phrase? ( c-addr n -- bool )
 	-1 ROT ROT
 	0 DO
 		DUP I + C@ DUP is-char SWAP is-space XOR ROT AND SWAP
@@ -131,7 +131,7 @@ VARIABLE tries 6 tries !
 	THEN
 ;
 
-: input-phrase
+: input-phrase ( -- )
 	CR ." Please input your secret phrase below."
 	BEGIN
 	CR ." Input your phrase: " BUFFERSIZE input-string ( c-addr n )
@@ -150,7 +150,7 @@ VARIABLE tries 6 tries !
 \ --------------------------------------------------------------------------------
 \ GUESS WORDS
 \ --------------------------------------------------------------------------------
-: draw-man
+: draw-man ( n -- )
 	( POLE )
     CR space 95 emit 95 emit 95 emit 95 emit 95 emit
     CR space 124 EMIT space space space 124 EMIT
@@ -180,7 +180,7 @@ VARIABLE tries 6 tries !
     DROP
 ;
 
-: print-guessed
+: print-guessed ( -- )
 	CR ." Letters used: "
 	ALPHABETSIZE 0 DO
 		guessed I + C@
@@ -192,7 +192,7 @@ VARIABLE tries 6 tries !
 	LOOP
 ;
 
-: in-phrase? ( c -- c #t | #f )
+: in-phrase? ( c -- c bool )
 	0 SWAP
 	size @ 0 DO
 		secretPhrase I + C@ OVER =
@@ -203,7 +203,7 @@ VARIABLE tries 6 tries !
 	SWAP
 ;
 
-: char-guessed? ( c -- #t | #f )
+: char-guessed? ( c -- bool )
 	DUP
 	65 - guessed + DUP C@ 0=
 	IF
@@ -213,7 +213,7 @@ VARIABLE tries 6 tries !
 	THEN
 ;
 
-: make-guess
+: make-guess ( -- )
 	CR ." Enter your guess: " input-char to-upper
 	DUP is-char
 	IF
@@ -238,7 +238,7 @@ VARIABLE tries 6 tries !
 	THEN
 ;
 
-: solve-phrase
+: solve-phrase ( -- )
 	CR ." Please input your solution below."
 	CR ." Input your solution: "
 	size @ input-string
@@ -259,13 +259,13 @@ VARIABLE tries 6 tries !
 \ --------------------------------------------------------------------------------
 \ CONTROL WORDS
 \ --------------------------------------------------------------------------------
-: print-choice-menu
+: print-choice-menu ( -- )
 	CR ." (1) Make a letter guess"
 	CR ." (2) Make an attempt to solve the phrase"
 	CR ." (0) Quit the game"
 ;
 
-: quit-game
+: quit-game ( -- )
 	PAGE
 	." We are sad to see you go!"
 	CR ." Goodbye!"
@@ -273,7 +273,7 @@ VARIABLE tries 6 tries !
 	BYE
 ;
 
-: choice-menu
+: choice-menu ( -- )
 	print-choice-menu
 	CR CR ." Input your choice: "
 	input-char
@@ -284,10 +284,9 @@ VARIABLE tries 6 tries !
 		50 OF solve-phrase ENDOF	( 2 )
    		PAGE ." Invalid choice!"
    	ENDCASE
-
 ;
 
-: you-win
+: you-win ( -- )
 	PAGE
 	." Congratulations, you win!"
 	CR ." You guessed the phrase " 34 EMIT print-phrase 34 EMIT ." !"
@@ -296,18 +295,18 @@ VARIABLE tries 6 tries !
 	BYE
 ;
 
-: setup
+: setup ( -- )
 	input-phrase
 	PAGE
 ;
 
-: print-board
+: print-board ( -- )
 	tries @ draw-man
 	print-progress
 	print-guessed
 ;
 
-: game-loop
+: game-loop ( -- )
 	BEGIN
 		tries @ 1 <
 		IF
@@ -327,7 +326,7 @@ VARIABLE tries 6 tries !
 	you-win
 ;
 
-: hangman
+: hangman ( -- )
 	PAGE
 	." Welcome to Hangman in Forth!"
 	setup
